@@ -29,6 +29,7 @@ lazy_static! {
     static ref INDEX_PATH: Regex = Regex::new("^/(index\\.html?)?$").unwrap();
     static ref USER_PATH: Regex = Regex::new("^/user/((?P<user_id>\\d+?)/?)?$").unwrap();
     static ref USERS_PATH: Regex = Regex::new("^/users/?$").unwrap();
+    static ref RAND_PATH: Regex = Regex::new("^/rand/?$").unwrap();
 }
 
 type UserId = u64;
@@ -84,6 +85,13 @@ async fn microservice_handler(
         if INDEX_PATH.is_match(path) {
             if method == &Method::GET {
                 Response::new(INDEX.into())
+            } else {
+                response_with_code(StatusCode::METHOD_NOT_ALLOWED)
+            }
+        } else if RAND_PATH.is_match(path) {
+            if method == Method::GET {
+                let random_byte = rand::random::<u8>();
+                Response::new(Body::from(random_byte.to_string()))
             } else {
                 response_with_code(StatusCode::METHOD_NOT_ALLOWED)
             }
